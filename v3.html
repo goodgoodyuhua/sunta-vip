@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>客製化行程預約 - Demo V3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f7;
+      color: #222;
+      line-height: 1.5;
+    }
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    header { margin-bottom: 16px; }
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    header p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+    .btn-primary {
+      background: #0070f3;
+      color: white;
+      box-shadow: 0 2px 6px rgba(0, 112, 243, 0.4);
+    }
+    .btn-primary:hover {
+      background: #0059c4;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 112, 243, 0.35);
+    }
+    .btn-secondary {
+      background: #e5e5ea;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background: #d5d5db;
+    }
+    .btn-outline {
+      background: white;
+      color: #d14343;
+      border: 1px solid #f0b4b4;
+      padding: 4px 9px;
+      font-size: 12px;
+    }
+    .btn-outline:hover {
+      background: #ffecec;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .form-row label {
+      font-size: 13px;
+      color: #555;
+    }
+    .form-row input,
+    .form-row select {
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      font-size: 14px;
+      width: 100%;
+    }
+    .form-tip {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #f0f0f0;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+    }
+    .left-panel { flex: 2; display: flex; flex-direction: column; gap: 12px; }
+    .right-panel { flex: 1.4; display: flex; flex-direction: column; gap: 12px; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f1f1f5;
+      color: #444;
+    }
+
+    /* 景點卡片 */
+    .spots-list {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 12px;
+    }
+    .spot-card {
+      border-radius: 10px;
+      border: 1px solid #eee;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #fafafa;
+    }
+    .spot-thumb {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      background: linear-gradient(135deg,#dce7ff,#f9d7ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .spot-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .spot-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .spot-city-tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e7f0ff;
+      color: #2858b8;
+      white-space: nowrap;
+    }
+    .spot-desc {
+      font-size: 13px;
+      color: #666;
+      min-height: 36px;
+    }
+    .spot-meta {
+      font-size: 12px;
+      color: #777;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .spot-price {
+      font-weight: 600;
+      color: #e67e22;
+    }
+    .spot-actions {
+      margin-top: 4px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    /* 行程清單 */
+    .cart-list {
+      list-style: none;
+      margin-bottom: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+      gap: 6px;
+    }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item-main { flex: 1; }
+    .cart-item-title { font-weight: 500; }
+    .cart-item-sub { font-size: 11px; color: #777; }
+    .cart-item-price {
+      font-size: 12px;
+      color: #e67e22;
+      white-space: nowrap;
+      margin-right: 4px;
+    }
+    .empty-text { font-size: 13px; color: #888; }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin: 2px 0;
+    }
+    .summary-highlight {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0070f3;
+    }
+    .summary-subtext {
+      font-size: 11px;
+      color: #777;
+    }
+
+    /* 第三頁：未排程景點 */
+    .unscheduled-card {
+      border-radius: 10px;
+      border: 1px solid #e5e5e5;
+      padding: 8px;
+      margin-bottom: 6px;
+      background: #fafafa;
+      cursor: grab;
+      font-size: 12px;
+    }
+    .unscheduled-card-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .unscheduled-card-sub {
+      font-size: 11px;
+      color: #777;
+    }
+
+    /* 第三頁：時間表 */
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .timeline-select {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      font-size: 12px;
+      background: #fafafa;
+    }
+    .schedule-hour-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 4px;
+    }
+    .schedule-hour-labels span { width: 25%; text-align: center; }
+
+    .schedule-row {
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 4px;
+    }
+    .schedule-time-label {
+      width: 50px;
+      font-size: 11px;
+      color: #777;
+      padding-top: 4px;
+    }
+    .schedule-slot {
+      flex: 1;
+      min-height: 40px;
+      border: 1px dashed #ddd;
+      border-radius: 6px;
+      background: #fafafa;
+      padding: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .schedule-slot.drag-over {
+      border-color: #0070f3;
+      background: #eef4ff;
+    }
+    .schedule-block {
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: rgba(0,112,243,0.1);
+      border: 1px solid rgba(0,112,243,0.4);
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .schedule-block.transport {
+      background: rgba(247,144,9,0.12);
+      border-color: rgba(247,144,9,0.4);
+    }
+
+    /* 簡易後台 */
+    #adminPanel { margin-top: 8px; }
+    .admin-spot-row {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .admin-spot-field {
+      display: flex;
+      flex-direction: column;
+      min-width: 150px;
+      flex: 1;
+      gap: 2px;
+    }
+    .admin-spot-field label {
+      font-size: 11px;
+      color: #555;
+    }
+    .admin-spot-field input,
+    .admin-spot-field select {
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+    }
+    .admin-spot-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 4px;
+      min-width: 80px;
+    }
+
+    footer {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>客製化行程預約 - Demo V3</h1>
+      <p>第 1 頁基本資料 + 後台，第 2 頁選景點，第 3 頁拖拉排成時間表。</p>
+    </header>
+
+    <!-- ========== 第 1 頁：基本資訊 + 簡易後台 ========== -->
+    <section id="page1" class="page active">
+      <div class="card">
+        <div class="card-title">
+          <span>Step 1：輸入出發資訊</span>
+          <button id="toggleAdminBtn" class="btn btn-secondary">開啟 / 關閉簡易後台</button>
+        </div>
+        <div>
+          <div class="form-row">
+            <label for="startDateInput">出發日期</label>
+            <input type="date" id="startDateInput" />
+          </div>
+          <div class="form-row">
+            <label for="endDateInput">結束日期</label>
+            <input type="date" id="endDateInput" />
+          </div>
+          <div class="form-row">
+            <label>旅遊天數（自動計算）</label>
+            <div>
+              <span id="daysDisplay">尚未選擇日期</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="peopleInput">人數 *</label>
+            <input type="number" id="peopleInput" min="1" value="2" />
+          </div>
+          <div class="form-row">
+            <label for="regionSelect">主要地區 *</label>
+            <select id="regionSelect">
+              <option value="福岡">福岡</option>
+              <option value="佐世保">佐世保</option>
+              <option value="all">福岡 + 佐世保（一起看）</option>
+            </select>
+          </div>
+          <p class="form-tip">
+            出發／結束日期會自動算出「遊玩天數」，後面粗估價格與行程表都會用到。
+          </p>
+        </div>
+        <div style="margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button id="toPage2Btn" class="btn btn-primary">下一步：選景點</button>
+        </div>
+      </div>
+
+      <!-- 簡易後台：管理景點列表 -->
+      <div class="card" id="adminPanel" style="display:none;">
+        <div class="card-title">
+          <span>簡易景點管理（本機 Demo 後台）</span>
+        </div>
+        <p class="form-tip">
+          這裡修改的是存在瀏覽器記憶體裡的資料，<b>重新整理網頁會回到預設值</b>。適合先試流程，之後再接真正資料庫。
+        </p>
+        <div id="adminSpotsContainer"></div>
+        <button id="addSpotBtn" class="btn btn-secondary" style="margin-top: 8px;">＋ 新增景點</button>
+      </div>
+    </section>
+
+    <!-- ========== 第 2 頁：選景點 ========== -->
+    <section id="page2" class="page">
+      <div class="card">
+        <div class="card-title">
+          <span>Step 2：選擇想去的景點</span>
+          <div style="display:flex; gap:8px;">
+            <button id="backToPage1Btn" class="btn btn-secondary">← 回上一頁</button>
+            <button id="toPage3Btn" class="btn btn-primary">下一步：安排時間表 →</button>
+          </div>
+        </div>
+        <div class="chips" id="tripInfoChips2"></div>
+      </div>
+
+      <main class="layout">
+        <section class="left-panel">
+          <div class="card">
+            <div class="card-title">
+              <span>可選景點（依地區）</span>
+              <span class="badge" id="spotRegionBadge"></span>
+            </div>
+            <div class="spots-list" id="spotsList"></div>
+          </div>
+        </section>
+
+        <aside class="right-panel">
+          <section class="card">
+            <div class="card-title">
+              <span>我的行程清單</span>
+              <span class="badge" id="cartCountBadge">0 個景點</span>
+            </div>
+            <ul class="cart-list" id="cartList"></ul>
+            <div id="cartEmptyText" class="empty-text">
+              還沒有加入任何景點，從左邊挑選你有興趣的地方吧！
+            </div>
+            <hr style="margin: 6px 0; border: none; border-top: 1px solid #eee;" />
+            <div id="summaryArea"></div>
+          </section>
+        </aside>
+      </main>
+    </section>
+
+    <!-- ========== 第 3 頁：拖拉行程時間表 ========== -->
+    <section id="page3" class="page">
+      <div class="card">
+        <div class="card-title">
+          <span>Step 3：安排每日行程（拖拉景點）</span>
+          <button id="backToPage2Btn" class="btn btn-secondary">← 回上一頁</button>
+        </div>
+        <div class="chips" id="tripInfoChips3"></div>
+      </div>
+
+      <main class="layout">
+        <!-- 左邊：待安排景點 -->
+        <section class="left-panel">
+          <div class="card">
+            <div class="card-title">
+              <span>待安排景點</span>
+              <span class="badge" id="unscheduledCountBadge">0 個</span>
+            </div>
+            <div id="unscheduledList"></div>
+            <p class="form-tip">
+              將景點卡片用滑鼠拖曳到右邊「時間格」裡，就代表安排在那一天、那個時段。
+              Demo 版本會自動幫你在下一格加一段 <b>「車程移動」</b>。
+            </p>
+          </div>
+        </section>
+
+        <!-- 右邊：時間表 + 送出 -->
+        <aside class="right-panel">
+          <section class="card">
+            <div class="timeline-header">
+              <span>每日時間表</span>
+              <select id="scheduleDaySelect" class="timeline-select"></select>
+            </div>
+            <div class="schedule-hour-labels">
+              <span>06:00</span>
+              <span>10:00</span>
+              <span>14:00</span>
+              <span>18:00+</span>
+            </div>
+            <div id="scheduleTimeline"></div>
+            <p id="scheduleHint" class="form-tip" style="margin-top:6px;">
+              第 1 天目前沒有排任何景點，可以先從左邊拖曳景點進來。
+            </p>
+          </section>
+
+          <section class="card">
+            <div class="card-title">
+              <span>送出需求（Demo）</span>
+            </div>
+            <button id="submitItineraryBtn" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
+              送出行程（Demo + Google 表單串接說明）
+            </button>
+            <p class="form-tip" style="margin-top:6px;">
+              目前按下去會在畫面跳出摘要，並在瀏覽器 console.log 詳細內容。<br />
+              實務上，你可以：<br />
+              1）建立一個連到你那個試算表的 Google 表單<br />
+              2）把表單的 <b>form action</b> 和欄位 <b>entry.xxx</b> 代入程式裡註解的 fetch 範例。
+            </p>
+          </section>
+        </aside>
+      </main>
+    </section>
+
+    <footer>
+      Demo 版僅為前端原型（不含身分驗證與真正資料庫、試算表串接），適合先測流程。
+    </footer>
+  </div>
+
+  <script>
+    // ======= 假資料：景點列表（可以用後台改） =======
+    let spots = [
+      {
+        id: "fukuoka_001",
+        name: "博多運河城",
+        city: "福岡",
+        durationHour: 3,
+        basePrice: 3500,
+        desc: "結合購物、美食與娛樂的複合商場，適合排半天慢慢逛。"
+      },
+      {
+        id: "fukuoka_002",
+        name: "太宰府天滿宮",
+        city: "福岡",
+        durationHour: 3,
+        basePrice: 3800,
+        desc: "著名學問之神神社，可安排和服體驗、散步與甜點。"
+      },
+      {
+        id: "fukuoka_003",
+        name: "福岡塔夜景",
+        city: "福岡",
+        durationHour: 2,
+        basePrice: 3200,
+        desc: "欣賞福岡市夜景，適合安排在行程最後一晚。"
+      },
+      {
+        id: "fukuoka_004",
+        name: "中洲屋台美食",
+        city: "福岡",
+        durationHour: 2,
+        basePrice: 3000,
+        desc: "體驗道地屋台文化，適合喜歡在地美食的旅客。"
+      },
+      {
+        id: "sasebo_001",
+        name: "豪斯登堡",
+        city: "佐世保",
+        durationHour: 6,
+        basePrice: 7500,
+        desc: "以荷蘭街景為主題的樂園，夜間燈光秀非常有名。"
+      },
+      {
+        id: "sasebo_002",
+        name: "佐世保漢堡巡禮",
+        city: "佐世保",
+        durationHour: 2,
+        basePrice: 2800,
+        desc: "體驗當地發源的佐世保漢堡，適合作為午餐安排。"
+      },
+      {
+        id: "sasebo_003",
+        name: "九十九島遊船",
+        city: "佐世保",
+        durationHour: 3,
+        basePrice: 4200,
+        desc: "搭乘遊船欣賞九十九島海景，天氣好時超級漂亮。"
+      },
+      {
+        id: "sasebo_004",
+        name: "展海峰展望台",
+        city: "佐世保",
+        durationHour: 2,
+        basePrice: 2600,
+        desc: "俯瞰九十九島的知名觀景點，適合安排在黃昏。"
+      }
+    ];
+
+    // ======= 全域狀態 =======
+    const timeSlots = ["06:00","08:00","10:00","12:00","14:00","16:00","18:00","20:00","22:00"];
+
+    let tripInfo = {
+      startDate: "",
+      endDate: "",
+      days: 0,
+      people: 2,
+      region: "福岡"
+    };
+
+    // 使用者選好的景點（不含時間）
+    let selectedSpots = [];
+
+    // 第三頁：行程時間表資料 { day: { "06:00": [entries], ... } }
+    // entry: { type: "activity" | "transport", spotId?, name, city?, from? }
+    let schedule = {};
+
+    // ======= DOM 元素 =======
+    const page1El = document.getElementById("page1");
+    const page2El = document.getElementById("page2");
+    const page3El = document.getElementById("page3");
+
+    const startDateInputEl = document.getElementById("startDateInput");
+    const endDateInputEl = document.getElementById("endDateInput");
+    const daysDisplayEl = document.getElementById("daysDisplay");
+    const peopleInputEl = document.getElementById("peopleInput");
+    const regionSelectEl = document.getElementById("regionSelect");
+
+    const toPage2BtnEl = document.getElementById("toPage2Btn");
+    const backToPage1BtnEl = document.getElementById("backToPage1Btn");
+    const toPage3BtnEl = document.getElementById("toPage3Btn");
+    const backToPage2BtnEl = document.getElementById("backToPage2Btn");
+
+    const tripInfoChips2El = document.getElementById("tripInfoChips2");
+    const tripInfoChips3El = document.getElementById("tripInfoChips3");
+
+    const spotsListEl = document.getElementById("spotsList");
+    const spotRegionBadgeEl = document.getElementById("spotRegionBadge");
+    const cartListEl = document.getElementById("cartList");
+    const cartEmptyTextEl = document.getElementById("cartEmptyText");
+    const cartCountBadgeEl = document.getElementById("cartCountBadge");
+    const summaryAreaEl = document.getElementById("summaryArea");
+
+    const unscheduledListEl = document.getElementById("unscheduledList");
+    const unscheduledCountBadgeEl = document.getElementById("unscheduledCountBadge");
+    const scheduleDaySelectEl = document.getElementById("scheduleDaySelect");
+    const scheduleTimelineEl = document.getElementById("scheduleTimeline");
+    const scheduleHintEl = document.getElementById("scheduleHint");
+    const submitItineraryBtnEl = document.getElementById("submitItineraryBtn");
+
+    const adminPanelEl = document.getElementById("adminPanel");
+    const toggleAdminBtnEl = document.getElementById("toggleAdminBtn");
+    const adminSpotsContainerEl = document.getElementById("adminSpotsContainer");
+    const addSpotBtnEl = document.getElementById("addSpotBtn");
+
+    // ======= 工具函式：頁面切換 =======
+    function goToPage(pageIndex) {
+      page1El.classList.remove("active");
+      page2El.classList.remove("active");
+      page3El.classList.remove("active");
+      if (pageIndex === 1) page1El.classList.add("active");
+      if (pageIndex === 2) page2El.classList.add("active");
+      if (pageIndex === 3) page3El.classList.add("active");
+    }
+
+    // ======= 計算天數（出發＆結束日期） =======
+    function calcDays() {
+      const startStr = startDateInputEl.value;
+      const endStr = endDateInputEl.value;
+      if (!startStr || !endStr) {
+        tripInfo.days = 0;
+        daysDisplayEl.textContent = "尚未選擇完整日期";
+        return;
+      }
+      const start = new Date(startStr);
+      const end = new Date(endStr);
+      const diffMs = end - start;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1; // 包含起始日
+      if (diffDays <= 0) {
+        tripInfo.days = 0;
+        daysDisplayEl.textContent = "結束日期必須在出發日期之後";
+        return;
+      }
+      tripInfo.days = diffDays;
+      daysDisplayEl.textContent = `${diffDays} 天（含出發與結束當天）`;
+    }
+
+    // ======= Trip Info Chips =======
+    function renderTripInfoChips(targetEl) {
+      targetEl.innerHTML = "";
+      const regionLabel = tripInfo.region === "all" ? "福岡 + 佐世保" : tripInfo.region;
+      const chips = [
+        { label: "出發日期", value: tripInfo.startDate || "未填寫" },
+        { label: "結束日期", value: tripInfo.endDate || "未填寫" },
+        { label: "天數", value: tripInfo.days ? `${tripInfo.days} 天` : "尚未計算" },
+        { label: "人數", value: `${tripInfo.people} 人` },
+        { label: "主要地區", value: regionLabel }
+      ];
+      chips.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "chip";
+        div.textContent = `${c.label}：${c.value}`;
+        targetEl.appendChild(div);
+      });
+    }
+
+    // ======= 第 2 頁：景點列表 =======
+    function renderSpots() {
+      spotsListEl.innerHTML = "";
+      let filtered = spots;
+      if (tripInfo.region !== "all") {
+        filtered = spots.filter(s => s.city === tripInfo.region);
+      }
+      spotRegionBadgeEl.textContent =
+        tripInfo.region === "all"
+          ? "目前顯示：福岡 + 佐世保"
+          : `目前地區：${tripInfo.region}`;
+
+      filtered.forEach(spot => {
+        const card = document.createElement("div");
+        card.className = "spot-card";
+        card.innerHTML = `
+          <div class="spot-thumb">示意圖片（之後可換成真實照片）</div>
+          <div class="spot-title-row">
+            <div class="spot-title">${spot.name}</div>
+            <div class="spot-city-tag">${spot.city}</div>
+          </div>
+          <div class="spot-desc">${spot.desc}</div>
+          <div class="spot-meta">
+            <span>建議停留：約 ${spot.durationHour} 小時</span>
+            <span class="spot-price">NT$ ${spot.basePrice.toLocaleString()}</span>
+          </div>
+          <div class="spot-actions">
+            <button class="btn btn-primary">加入行程</button>
+          </div>
+        `;
+        const btn = card.querySelector("button");
+        btn.addEventListener("click", () => addSpotToCart(spot.id));
+        spotsListEl.appendChild(card);
+      });
+    }
+
+    // ======= 第 2 頁：加入 / 移除行程 + 粗估價 =======
+    function addSpotToCart(spotId) {
+      const exists = selectedSpots.find(s => s.id === spotId);
+      if (exists) {
+        alert("這個景點已經在你的行程清單裡囉！");
+        return;
+      }
+      const spot = spots.find(s => s.id === spotId);
+      if (!spot) return;
+      selectedSpots.push({ ...spot });
+      renderCart();
+      renderUnscheduledList();
+      renderSchedule();
+    }
+
+    function removeSpotFromCart(spotId) {
+      selectedSpots = selectedSpots.filter(s => s.id !== spotId);
+
+      // 同時從時間表移除
+      Object.keys(schedule).forEach(dayStr => {
+        const day = Number(dayStr);
+        timeSlots.forEach(t => {
+          if (!schedule[day]) return;
+          schedule[day][t] = (schedule[day][t] || []).filter(
+            e => !(e.type === "activity" && e.spotId === spotId)
+          );
+        });
+      });
+
+      renderCart();
+      renderUnscheduledList();
+      renderSchedule();
+    }
+
+    function calcEstimate() {
+      const people = tripInfo.people || 1;
+      const days = tripInfo.days || 1;
+      const baseSum = selectedSpots.reduce((sum, s) => sum + (s.basePrice || 0), 0);
+      const serviceFeePerDay = 1200;
+      const total = baseSum * people + serviceFeePerDay * days;
+      const low = Math.round(total * 0.85);
+      const high = Math.round(total * 1.15);
+      return { total, low, high, baseSum, people, days };
+    }
+
+    function renderCart() {
+      cartListEl.innerHTML = "";
+      if (selectedSpots.length === 0) {
+        cartEmptyTextEl.style.display = "block";
+        cartCountBadgeEl.textContent = "0 個景點";
+        summaryAreaEl.innerHTML = "";
+        return;
+      }
+      cartEmptyTextEl.style.display = "none";
+      cartCountBadgeEl.textContent = `${selectedSpots.length} 個景點`;
+
+      selectedSpots.forEach(spot => {
+        const li = document.createElement("li");
+        li.className = "cart-item";
+        li.innerHTML = `
+          <div class="cart-item-main">
+            <div class="cart-item-title">${spot.name}</div>
+            <div class="cart-item-sub">${spot.city} · 約 ${spot.durationHour} 小時</div>
+          </div>
+          <div class="cart-item-price">NT$ ${spot.basePrice.toLocaleString()}</div>
+        `;
+        const btnRemove = document.createElement("button");
+        btnRemove.className = "btn btn-outline";
+        btnRemove.textContent = "移除";
+        btnRemove.addEventListener("click", () => removeSpotFromCart(spot.id));
+        li.appendChild(btnRemove);
+        cartListEl.appendChild(li);
+      });
+
+      const est = calcEstimate();
+      summaryAreaEl.innerHTML = `
+        <div class="summary-row">
+          <span>景點基本合計（未乘人數）：</span>
+          <strong>NT$ ${est.baseSum.toLocaleString()}</strong>
+        </div>
+        <div class="summary-row">
+          <span>天數：</span>
+          <span>${est.days} 天</span>
+        </div>
+        <div class="summary-row">
+          <span>人數：</span>
+          <span>${est.people} 人</span>
+        </div>
+        <div class="summary-row" style="margin-top: 4px;">
+          <span>建議粗估區間（整團）：</span>
+          <span class="summary-highlight">
+            NT$ ${est.low.toLocaleString()} ～ ${est.high.toLocaleString()}
+          </span>
+        </div>
+        <div class="summary-row">
+          <span></span>
+          <span class="summary-subtext">
+            實際金額會依季節、住房與交通調整，後續由人工與您確認。
+          </span>
+        </div>
+      `;
+    }
+
+    // ======= 第 3 頁：時間表資料結構 =======
+    function ensureDaySchedule(day) {
+      if (!schedule[day]) {
+        schedule[day] = {};
+        timeSlots.forEach(t => {
+          schedule[day][t] = [];
+        });
+      }
+    }
+
+    function renderScheduleDaySelect() {
+      scheduleDaySelectEl.innerHTML = "";
+      const days = tripInfo.days || 1;
+      for (let d = 1; d <= days; d++) {
+        const opt = document.createElement("option");
+        opt.value = String(d);
+        opt.textContent = `第 ${d} 天`;
+        scheduleDaySelectEl.appendChild(opt);
+      }
+      scheduleDaySelectEl.value = "1";
+    }
+
+    function renderSchedule() {
+      const day = Number(scheduleDaySelectEl.value || 1);
+      ensureDaySchedule(day);
+      const daySchedule = schedule[day];
+
+      scheduleTimelineEl.innerHTML = "";
+      const hasAny = timeSlots.some(t => (daySchedule[t] || []).length > 0);
+
+      if (!hasAny) {
+        scheduleHintEl.textContent =
+          `第 ${day} 天目前還沒有排任何景點，可以先從左邊拖曳景點進來。`;
+      } else {
+        scheduleHintEl.textContent =
+          "提示：時間格越滿，代表那一天的行程越緊湊，可以保留一些空白格當作休息或移動。";
+      }
+
+      timeSlots.forEach(time => {
+        const row = document.createElement("div");
+        row.className = "schedule-row";
+
+        const label = document.createElement("div");
+        label.className = "schedule-time-label";
+        label.textContent = time;
+
+        const slot = document.createElement("div");
+        slot.className = "schedule-slot time-slot";
+        slot.dataset.day = String(day);
+        slot.dataset.time = time;
+
+        slot.addEventListener("dragover", e => {
+          e.preventDefault();
+          slot.classList.add("drag-over");
+        });
+        slot.addEventListener("dragleave", () => {
+          slot.classList.remove("drag-over");
+        });
+        slot.addEventListener("drop", e => {
+          e.preventDefault();
+          slot.classList.remove("drag-over");
+          const spotId = e.dataTransfer.getData("text/plain");
+          if (!spotId) return;
+          handleDropOnSlot(day, time, spotId);
+        });
+
+        const entries = daySchedule[time] || [];
+        entries.forEach(entry => {
+          const block = document.createElement("div");
+          block.className = "schedule-block";
+          if (entry.type === "transport") {
+            block.classList.add("transport");
+            block.textContent = `車程：${entry.from || "移動"}`;
+          } else {
+            block.textContent = entry.name;
+          }
+          slot.appendChild(block);
+        });
+
+        row.appendChild(label);
+        row.appendChild(slot);
+        scheduleTimelineEl.appendChild(row);
+      });
+    }
+
+    function handleDropOnSlot(day, time, spotId) {
+      const spot = selectedSpots.find(s => s.id === spotId);
+      if (!spot) return;
+
+      ensureDaySchedule(day);
+
+      // 避免同一景點在同一天同一格重複
+      const existing = schedule[day][time].find(
+        e => e.type === "activity" && e.spotId === spotId
+      );
+      if (!existing) {
+        schedule[day][time].push({
+          type: "activity",
+          spotId,
+          name: spot.name,
+          city: spot.city
+        });
+      }
+
+      // 自動加一格車程在下一個 time slot
+      const idx = timeSlots.indexOf(time);
+      const nextTime = timeSlots[idx + 1];
+      if (nextTime) {
+        ensureDaySchedule(day);
+        schedule[day][nextTime].push({
+          type: "transport",
+          name: "車程移動",
+          from: spot.name
+        });
+      }
+
+      renderSchedule();
+      renderUnscheduledList();
+    }
+
+    // ======= 第 3 頁：未排程景點（拖曳來源） =======
+    function renderUnscheduledList() {
+      const scheduledIds = new Set();
+      Object.keys(schedule).forEach(dayStr => {
+        const day = Number(dayStr);
+        const daySchedule = schedule[day];
+        if (!daySchedule) return;
+        timeSlots.forEach(t => {
+          (daySchedule[t] || []).forEach(entry => {
+            if (entry.type === "activity" && entry.spotId) {
+              scheduledIds.add(entry.spotId);
+            }
+          });
+        });
+      });
+
+      const unscheduled = selectedSpots.filter(s => !scheduledIds.has(s.id));
+      unscheduledCountBadgeEl.textContent = `${unscheduled.length} 個`;
+
+      unscheduledListEl.innerHTML = "";
+      if (selectedSpots.length === 0) {
+        unscheduledListEl.innerHTML =
+          '<p class="empty-text">還沒有選景點，請先回第二頁加入行程。</p>';
+        return;
+      }
+
+      if (unscheduled.length === 0) {
+        unscheduledListEl.innerHTML =
+          '<p class="empty-text">所有景點都已經排進時間表了，想調整可以在右邊清空某個格再重新拖曳。</p>';
+        return;
+      }
+
+      unscheduled.forEach(spot => {
+        const card = document.createElement("div");
+        card.className = "unscheduled-card";
+        card.draggable = true;
+        card.dataset.id = spot.id;
+
+        card.innerHTML = `
+          <div class="unscheduled-card-title">${spot.name}</div>
+          <div class="unscheduled-card-sub">${spot.city} · 約 ${spot.durationHour} 小時 · NT$ ${spot.basePrice.toLocaleString()}</div>
+        `;
+
+        card.addEventListener("dragstart", e => {
+          e.dataTransfer.setData("text/plain", spot.id);
+        });
+
+        unscheduledListEl.appendChild(card);
+      });
+    }
+
+    // ======= 送出行程（Demo + Google 表單範例） =======
+    function handleSubmitItinerary() {
+      if (!selectedSpots.length) {
+        alert("請先在第二頁選擇至少一個景點，再來送出行程喔！");
+        return;
+      }
+
+      const summaryLines = [];
+      summaryLines.push("【客製化行程需求摘要】");
+      summaryLines.push("");
+      summaryLines.push(`出發日期：${tripInfo.startDate || "未填寫"}`);
+      summaryLines.push(`結束日期：${tripInfo.endDate || "未填寫"}`);
+      summaryLines.push(`旅遊天數：${tripInfo.days || "未計算"}`);
+      summaryLines.push(`人數：${tripInfo.people}`);
+      summaryLines.push(
+        `主要地區：${tripInfo.region === "all" ? "福岡 + 佐世保" : tripInfo.region}`
+      );
+      summaryLines.push("");
+
+      summaryLines.push("選擇的景點：");
+      selectedSpots.forEach((s, idx) => {
+        summaryLines.push(
+          `${idx + 1}. [${s.city}] ${s.name} · 約 ${s.durationHour} 小時 · NT$ ${s.basePrice.toLocaleString()}`
+        );
+      });
+      summaryLines.push("");
+
+      summaryLines.push("每日時間表（含車程）：");
+      const days = tripInfo.days || 1;
+      for (let d = 1; d <= days; d++) {
+        ensureDaySchedule(d);
+        summaryLines.push(`- 第 ${d} 天 -`);
+        timeSlots.forEach(time => {
+          const entries = schedule[d][time] || [];
+          if (!entries.length) return;
+          const text = entries
+            .map(e => {
+              if (e.type === "transport") return `【車程】${e.from || "移動"}`;
+              return `【景點】${e.name}`;
+            })
+            .join("，");
+          summaryLines.push(`  ${time}: ${text}`);
+        });
+        summaryLines.push("");
+      }
+
+      const summaryText = summaryLines.join("\n");
+
+      alert("Demo 模式：行程摘要已輸出到瀏覽器 console。\n（正式上線時可以改成送到 Google 表單寫入試算表）");
+      console.log(summaryText);
+
+      // ======= 這裡是 Google 表單串接範例（註解） =======
+      /*
+      你目前的試算表網址是：
+      https://docs.google.com/spreadsheets/d/1caNixMnEsQ06CQrfeXbtiCDnItA9YghVoM_L2bzlvfQ/edit?gid=0
+
+      實作流程建議：
+      1. 先建立一個 Google 表單，並設定「回覆目的地」為這個試算表。
+      2. 發佈表單後，開啟表單 → F12 或檢視原始碼，找到：
+         <form action="https://docs.google.com/forms/d/e/XXXXXX/formResponse" ...>
+      3. 同樣在表單欄位的 <input> 標籤裡找到 name="entry.1234567890" 這種欄位代號。
+      4. 把網址與 entry 代號填到下面這段程式碼裡，取消註解，就可以前端直接寫進試算表。
+
+      範例（請把 FORM_ID 和 entry.xxxxx 換成你自己的）：
+      
+      const formUrl = "https://docs.google.com/forms/d/e/你的FORM_ID/formResponse";
+      const formData = new FormData();
+      formData.append("entry.111111", tripInfo.startDate);
+      formData.append("entry.222222", tripInfo.endDate);
+      formData.append("entry.333333", String(tripInfo.people));
+      formData.append("entry.444444", summaryText); // 整份行程摘要
+
+      fetch(formUrl, {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      }).then(() => {
+        alert("已將行程送到 Google 表單 / 試算表！");
+      }).catch(err => {
+        console.error("送出到 Google 表單時發生錯誤：", err);
+      });
+      */
+    }
+
+    // ======= 簡易後台：管理景點 =======
+    function renderAdminSpots() {
+      adminSpotsContainerEl.innerHTML = "";
+      spots.forEach((spot, index) => {
+        const row = document.createElement("div");
+        row.className = "admin-spot-row";
+
+        const fieldName = document.createElement("div");
+        fieldName.className = "admin-spot-field";
+        fieldName.innerHTML = `<label>景點名稱</label>`;
+        const nameInput = document.createElement("input");
+        nameInput.value = spot.name;
+        nameInput.addEventListener("change", () => {
+          spot.name = nameInput.value;
+          renderSpots();
+          renderCart();
+          renderUnscheduledList();
+          renderSchedule();
+        });
+        fieldName.appendChild(nameInput);
+
+        const fieldCity = document.createElement("div");
+        fieldCity.className = "admin-spot-field";
+        fieldCity.innerHTML = `<label>城市</label>`;
+        const citySelect = document.createElement("select");
+        ["福岡","佐世保","其他"].forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c === "其他" ? "" : c;
+          opt.textContent = c;
+          if (spot.city === opt.value) opt.selected = true;
+          citySelect.appendChild(opt);
+        });
+        citySelect.addEventListener("change", () => {
+          spot.city = citySelect.value || "其他";
+          renderSpots();
+          renderCart();
+          renderUnscheduledList();
+          renderSchedule();
+        });
+        fieldCity.appendChild(citySelect);
+
+        const fieldDuration = document.createElement("div");
+        fieldDuration.className = "admin-spot-field";
+        fieldDuration.innerHTML = `<label>建議停留（小時）</label>`;
+        const durationInput = document.createElement("input");
+        durationInput.type = "number";
+        durationInput.min = "1";
+        durationInput.value = spot.durationHour;
+        durationInput.addEventListener("change", () => {
+          spot.durationHour = Number(durationInput.value) || 1;
+          renderSpots();
+          renderCart();
+          renderUnscheduledList();
+          renderSchedule();
+        });
+        fieldDuration.appendChild(durationInput);
+
+        const fieldPrice = document.createElement("div");
+        fieldPrice.className = "admin-spot-field";
+        fieldPrice.innerHTML = `<label>粗估價格（NT$）</label>`;
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.min = "0";
+        priceInput.value = spot.basePrice;
+        priceInput.addEventListener("change", () => {
+          spot.basePrice = Number(priceInput.value) || 0;
+          renderSpots();
+          renderCart();
+        });
+        fieldPrice.appendChild(priceInput);
+
+        const fieldDesc = document.createElement("div");
+        fieldDesc.className = "admin-spot-field";
+        fieldDesc.innerHTML = `<label>簡短介紹</label>`;
+        const descInput = document.createElement("input");
+        descInput.value = spot.desc;
+        descInput.addEventListener("change", () => {
+          spot.desc = descInput.value;
+          renderSpots();
+        });
+        fieldDesc.appendChild(descInput);
+
+        const actions = document.createElement("div");
+        actions.className = "admin-spot-actions";
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-outline";
+        removeBtn.textContent = "刪除";
+        removeBtn.addEventListener("click", () => {
+          spots.splice(index, 1);
+          // 同時把已選清單中這個景點移除
+          selectedSpots = selectedSpots.filter(s => s.id !== spot.id);
+          renderAdminSpots();
+          renderSpots();
+          renderCart();
+          renderUnscheduledList();
+          renderSchedule();
+        });
+        actions.appendChild(removeBtn);
+
+        row.appendChild(fieldName);
+        row.appendChild(fieldCity);
+        row.appendChild(fieldDuration);
+        row.appendChild(fieldPrice);
+        row.appendChild(fieldDesc);
+        row.appendChild(actions);
+
+        adminSpotsContainerEl.appendChild(row);
+      });
+    }
+
+    // ======= 初始化 =======
+    function initEvents() {
+      startDateInputEl.addEventListener("change", () => {
+        tripInfo.startDate = startDateInputEl.value || "";
+        calcDays();
+      });
+      endDateInputEl.addEventListener("change", () => {
+        tripInfo.endDate = endDateInputEl.value || "";
+        calcDays();
+      });
+
+      toggleAdminBtnEl.addEventListener("click", () => {
+        const visible = adminPanelEl.style.display !== "none";
+        adminPanelEl.style.display = visible ? "none" : "block";
+      });
+
+      addSpotBtnEl.addEventListener("click", () => {
+        const id = `custom_${Date.now()}`;
+        spots.push({
+          id,
+          name: "新景點",
+          city: "福岡",
+          durationHour: 2,
+          basePrice: 3000,
+          desc: "這是一個自訂景點。"
+        });
+        renderAdminSpots();
+        renderSpots();
+      });
+
+      toPage2BtnEl.addEventListener("click", () => {
+        const people = Number(peopleInputEl.value);
+        const region = regionSelectEl.value;
+        tripInfo.startDate = startDateInputEl.value || "";
+        tripInfo.endDate = endDateInputEl.value || "";
+        tripInfo.people = people > 0 ? people : 1;
+        tripInfo.region = region;
+
+        if (!tripInfo.days) {
+          if (!tripInfo.startDate || !tripInfo.endDate) {
+            alert("請先選擇出發日期與結束日期，讓系統自動計算天數。");
+            return;
+          }
+          alert("日期設定有問題（可能是結束日期早於出發日期），請再確認。");
+          return;
+        }
+
+        renderTripInfoChips(tripInfoChips2El);
+        renderSpots();
+        renderCart();
+        goToPage(2);
+      });
+
+      backToPage1BtnEl.addEventListener("click", () => {
+        goToPage(1);
+      });
+
+      toPage3BtnEl.addEventListener("click", () => {
+        if (!selectedSpots.length) {
+          alert("請至少選一個景點，再進入第三頁安排時間表。");
+          return;
+        }
+        renderTripInfoChips(tripInfoChips3El);
+        renderScheduleDaySelect();
+        renderUnscheduledList();
+        renderSchedule();
+        goToPage(3);
+      });
+
+      backToPage2BtnEl.addEventListener("click", () => {
+        goToPage(2);
+      });
+
+      scheduleDaySelectEl.addEventListener("change", () => {
+        renderSchedule();
+      });
+
+      submitItineraryBtnEl.addEventListener("click", handleSubmitItinerary);
+    }
+
+    function init() {
+      calcDays();
+      renderAdminSpots();
+      initEvents();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
