@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>註冊帳號 - 客製化行程</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>註冊帳號</h1>
+      <p>註冊後，下次訂製行程就不用再填聯絡方式了。</p>
+    </header>
+
+    <section class="page active">
+      <div class="card">
+        <div class="card-title">
+          <span>建立新帳號</span>
+          <a href="login.html" class="btn btn-secondary" style="text-decoration:none;">← 回登入頁</a>
+        </div>
+
+        <div class="form-row">
+          <label for="accountInput">帳號（登入用）*</label>
+          <input type="text" id="accountInput" placeholder="例如：tiffany07" />
+        </div>
+
+        <div class="form-row">
+          <label for="passwordInput">密碼 *</label>
+          <input type="password" id="passwordInput" placeholder="請輸入密碼" />
+        </div>
+
+        <div class="form-row">
+          <label for="passwordConfirmInput">確認密碼 *</label>
+          <input type="password" id="passwordConfirmInput" placeholder="再輸入一次密碼" />
+        </div>
+
+        <hr style="margin:10px 0; border:none; border-top:1px solid #eee;" />
+
+        <div class="form-row">
+          <label for="nameInput">姓名 *</label>
+          <input type="text" id="nameInput" placeholder="請輸入真實姓名" />
+        </div>
+
+        <div class="form-row">
+          <label for="emailInput">Email *</label>
+          <input type="email" id="emailInput" placeholder="請輸入聯絡 Email" />
+        </div>
+
+        <div class="form-row">
+          <label for="phoneInput">聯絡電話 *</label>
+          <input type="tel" id="phoneInput" placeholder="請輸入手機或電話" />
+        </div>
+
+
+        <button id="registerBtn" class="btn btn-primary" style="margin-top:12px; width:100%;">
+          送出註冊
+        </button>
+
+        <p id="registerError" style="color:#d14343; margin-top:10px; font-size:14px; display:none;"></p>
+        <p id="registerSuccess" style="color:#2c974b; margin-top:10px; font-size:14px; display:none;"></p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function getUsers() {
+      const raw = localStorage.getItem("users");
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    document.getElementById("registerBtn").addEventListener("click", () => {
+      const account = document.getElementById("accountInput").value.trim();
+      const pwd = document.getElementById("passwordInput").value.trim();
+      const pwd2 = document.getElementById("passwordConfirmInput").value.trim();
+      const name = document.getElementById("nameInput").value.trim();
+      const email = document.getElementById("emailInput").value.trim();
+      const phone = document.getElementById("phoneInput").value.trim();
+      const role = document.querySelector("input[name='role']:checked").value;
+
+      const errorEl = document.getElementById("registerError");
+      const successEl = document.getElementById("registerSuccess");
+      errorEl.style.display = "none";
+      successEl.style.display = "none";
+
+      if (!account || !pwd || !pwd2 || !name || !email || !phone) {
+        errorEl.textContent = "請把必填欄位都填寫完成。";
+        errorEl.style.display = "block";
+        return;
+      }
+      if (pwd !== pwd2) {
+        errorEl.textContent = "兩次輸入的密碼不一致。";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      const users = getUsers();
+      const exists = users.find(u => u.account === account);
+      if (exists) {
+        errorEl.textContent = "此帳號已被使用，請換一個帳號。";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      const newUser = { account, password: pwd, name, email, phone, role };
+      users.push(newUser);
+      saveUsers(users);
+
+      // 順便自動登入
+      localStorage.setItem("loginUser", JSON.stringify(newUser));
+
+      successEl.textContent = "註冊成功！將為你導向適合的頁面…";
+      successEl.style.display = "block";
+
+      setTimeout(() => {
+        if (role === "company") {
+          location.href = "admin.html";
+        } else {
+          location.href = "page2.html";
+        }
+      }, 800);
+    });
+  </script>
+</body>
+</html>

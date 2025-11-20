@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>客製化行程 - 選景點</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <script src="js/config.js"></script>
+  <div class="app">
+    <header style="position:relative;">
+      <h1>客製化行程預約</h1>
+      <p>Step 2／3：選擇想去的景點，右邊會顯示你的行程清單。</p>
+
+      <div id="loginStatus" style="
+        position:absolute; 
+        top:16px; 
+        right:16px; 
+        font-size:14px;">
+      </div>
+    </header>
+
+    <section class="page active">
+      <div class="card">
+        <div class="card-title">
+          <span>Step 2：選擇景點</span>
+          <div style="display:flex; gap:8px;">
+            <a href="index.html" class="btn btn-secondary" style="text-decoration:none;">← 回首頁</a>
+            <a href="page3.html" id="goScheduleLink" class="btn btn-primary" style="text-decoration:none;">下一步：安排時間表 →</a>
+          </div>
+        </div>
+
+        <!-- 會由 JS 動態顯示出發日期 / 天數 / 人數 / 城市 -->
+        <div class="chips" id="tripInfoChips2">
+          <!-- JS 會覆蓋這裡 -->
+          <span class="chip">讀取中…</span>
+        </div>
+      </div>
+
+      <main class="layout">
+        <!-- 左邊：景點列表 -->
+        <section class="left-panel">
+          <div class="card">
+            <div class="card-title">
+              <span>可選景點</span>
+              <span class="badge" id="spotCityBadge">尚未選擇城市</span>
+            </div>
+            <div class="spots-list" id="spotsList">
+              <!-- 如果沒有 data.js 或 JS 動態產生，下面是預設示意卡片 -->
+
+              <div class="spot-card">
+                <div class="spot-thumb">示意圖片（博多運河城）</div>
+                <div class="spot-title-row">
+                  <div class="spot-title">博多運河城</div>
+                  <div class="spot-city-tag">福岡</div>
+                </div>
+                <div class="spot-desc">結合購物、美食與娛樂的複合商場。</div>
+                <div class="spot-meta">
+                  <span>建議停留：約 3 小時</span>
+                  <span class="spot-price">NT$ 3500</span>
+                </div>
+                <div class="spot-actions">
+                  <button class="btn btn-primary add-to-cart-btn">加入行程</button>
+                </div>
+              </div>
+
+              <div class="spot-card">
+                <div class="spot-thumb">示意圖片（豪斯登堡）</div>
+                <div class="spot-title-row">
+                  <div class="spot-title">豪斯登堡</div>
+                  <div class="spot-city-tag">佐世保</div>
+                </div>
+                <div class="spot-desc">以荷蘭街景為主題的樂園，夜景很漂亮。</div>
+                <div class="spot-meta">
+                  <span>建議停留：約 6 小時</span>
+                  <span class="spot-price">NT$ 7500</span>
+                </div>
+                <div class="spot-actions">
+                  <button class="btn btn-primary add-to-cart-btn">加入行程</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右邊：行程清單 -->
+        <aside class="right-panel">
+          <section class="card">
+            <div class="card-title">
+              <span>我的行程清單（購物車）</span>
+              <span class="badge" id="cartCountBadge">0 個景點</span>
+            </div>
+            <ul class="cart-list" id="cartList">
+              <!-- 之後用 JS 顯示已加入的景點 -->
+            </ul>
+            <div id="cartEmptyText" class="empty-text">
+              還沒有加入任何景點，從左邊挑選你有興趣的地方吧！
+            </div>
+          </section>
+        </aside>
+      </main>
+    </section>
+
+    <footer>
+      第 2 頁 / 共 3 頁 · 之後可以接粗估價格、Google 表單等功能。
+    </footer>
+  </div>
+<script src="js/config.js"></script>        <!-- 如果有 -->
+<script src="js/loginStatus.js"></script>   <!-- 你的登入狀態，沒有就拿掉 -->
+<script src="js/data.js"></script>          <!-- 目前的假資料 spots 陣列 -->
+<script src="js/storage.js"></script>       <!-- Storage 模組 -->
+<script src="js/spotsService.js"></script>  <!-- SpotsService 模組，可選 -->
+<script src="js/cart.js"></script>          <!-- Cart 模組，可選 -->
+<script src="js/page2.js"></script>         <!-- 這一頁的主程式 -->
+
+</body>
+</html>
